@@ -258,11 +258,46 @@ Below are the empirical benchmarks recorded across 3 workload tiers ($N = 10^6, 
 
 ---
 
+## 8. Program Execution Screenshots
+
+The following terminal captures verify the live execution on the host machine (`DESKTOP-FUGQNF4`) with student USN `01FE24BCI081`:
+
+### 8.1 System Hardware & Environment Verification (`lscpu`, `free -h`, `mpirun`)
+![Host Hardware Specs](screenshots/01fe24bci081_system_hardware_specs.png)
+*Figure 6: Host system specifications confirming Intel Core i5-5300U CPU (2 cores, 4 threads, 3 MiB L3 cache), 3.8 GiB RAM in WSL2, and Open MPI 4.1.6.*
+
+### 8.2 Sequential Baseline Execution ($N = 10,000,000$)
+![Sequential Execution](screenshots/01fe24bci081_Sequential_Execution.png)
+*Figure 7: Terminal output of sequential baseline processing 10 Million elements in 0.370887 seconds (Throughput: 26.96 Million elements/sec).*
+
+### 8.3 Open MPI In-Situ Distributed Execution ($N = 10,000,000$, 4 Processes)
+![MPI In-Situ Execution](screenshots/01fe24bci081_MPI_InSitu_Execution.png)
+*Figure 8: Terminal output of Open MPI In-Situ domain decomposition running on 4 processes (0.224077s, Throughput: 44.63 M-elem/s, Speedup: 1.66x, 100% Correctness).*
+
+### 8.4 Open MPI Centralized Scatter-Gather Execution ($N = 10,000,000$, 4 Processes)
+![MPI Scatter-Gather Execution](screenshots/01fe24bci081_MPI_ScatterGather_Execution.png)
+*Figure 9: Terminal output of Open MPI Scatter-Gather showing computation time (0.216s) vs. collective IPC communication time (0.396s).*
+
+### 8.5 Multi-Core Hardware Thread Saturation (`htop`)
+![Multicore htop](screenshots/01fe24bci081_MPI_Multicore_htop.png)
+*Figure 10: Multi-core saturation across all 4 logical hardware threads running 4 parallel MPI ranks at ~100% CPU capacity.*
+
+---
+
 ## 9. Hardware & Operating Environment
 
-- **Host Machine:** x86_64, 16 Logical Processors / Hardware Threads
-- **System Memory:** 16 GB DDR4 RAM
+- **Host Processor:** Intel(R) Core(TM) i5-5300U CPU @ 2.30GHz
+- **Microarchitecture:** Broadwell (14nm), x86_64
+- **Physical Cores:** 2 Cores
+- **Hardware Threads / Logical Cores:** 4 Threads (SMT/Hyper-Threading enabled, 2 threads per core)
+- **CPU Cache Hierarchy:**
+  - L1d Cache: 64 KiB (32 KiB per core)
+  - L1i Cache: 64 KiB (32 KiB per core)
+  - L2 Cache: 512 KiB (256 KiB per core)
+  - L3 Cache: 3 MiB Intel Smart Cache
+- **System Memory:** 3.8 GiB available in WSL2 environment (+ 1.0 GiB Swap)
+- **Host Platform:** Windows 11 with WSL2 (Windows Subsystem for Linux, Hyper-V Hypervisor)
 - **Operating System:** Ubuntu 24.04 LTS (Linux Kernel 6.6)
 - **Compiler:** GCC 13.3.0 (`-O3 -Wall -Wextra -lm`)
-- **MPI Runtime:** Open MPI 4.1.6 (64-bit)
-- **Python Tools:** Python 3.12, NumPy 1.26, Pandas 2.2, Matplotlib 3.8, Python-PPTX 1.0.2
+- **MPI Runtime:** Open MPI 4.1.6 (64-bit multi-process distributed runtime)
+- **Python Tools:** Python 3.12, NumPy 1.26, Matplotlib 3.8, Pillow 10.2, Python-PPTX 1.0.2

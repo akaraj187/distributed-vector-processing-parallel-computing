@@ -138,10 +138,13 @@ Across all benchmark runs ($N = 10^6$ to $N = 10^8$, $P = 1$ to $16$), the imple
 | **Stress** | $100,000,000$ ($10^8$) | 762.94 MB | **3,051.76 MB** (3.05 GB) | Multi-Core Throughput & Cache Capacity |
 
 ### 3.2 Hardware Environment
-- **CPU:** x86_64, 16 Hardware Threads
-- **Host Memory:** 16 GB DDR4
-- **Operating System:** Ubuntu on Linux Kernel 6.6
-- **Toolchain:** GCC 13.3.0 (`-O3 -Wall -Wextra`), Open MPI 4.1.6
+- **Processor:** Intel(R) Core(TM) i5-5300U CPU @ 2.30GHz (Broadwell, 14nm)
+- **Cores & Threads:** 2 Physical Cores, 4 Hardware Threads (Hyper-Threading enabled)
+- **CPU Cache:** L1: 64 KB, L2: 512 KB, L3: 3 MiB Intel Smart Cache
+- **Host Memory:** 3.8 GiB available in WSL2 environment (+ 1.0 GiB Swap)
+- **Host Platform:** Windows 11 with WSL2 (Microsoft Hyper-V Hypervisor)
+- **Operating System:** Ubuntu 24.04 LTS (Linux Kernel 6.6)
+- **Toolchain:** GCC 13.3.0 (`-O3 -Wall -Wextra -lm`), Open MPI 4.1.6
 
 ---
 

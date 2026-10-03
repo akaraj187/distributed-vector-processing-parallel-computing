@@ -9,12 +9,12 @@ import os
 from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
-from pptx.enum.text import PP_ALIGN
 from pptx.enum.shapes import MSO_SHAPE
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(SCRIPT_DIR)
 GRAPHS_DIR = os.path.join(ROOT_DIR, "graphs")
+SCREENSHOTS_DIR = os.path.join(ROOT_DIR, "screenshots")
 PPTX_OUTPUT = os.path.join(SCRIPT_DIR, "Distributed_Vector_Processing_Lab_Evaluation.pptx")
 
 # Color palette: Clean Modern Professional Tech (Deep Navy, Slate Blue, Teal Accent, Cool Off-White)
@@ -50,7 +50,7 @@ def create_slide_with_header(prs, title_text, category_text="LAB EVALUATION — 
     tf_t.word_wrap = True
     p_t = tf_t.paragraphs[0]
     p_t.text = title_text
-    p_t.font.size = Pt(24)
+    p_t.font.size = Pt(22)
     p_t.font.bold = True
     p_t.font.color.rgb = COLOR_TEXT_WHITE
 
@@ -70,18 +70,18 @@ def add_card(slide, left, top, width, height, title, body_bullets, title_color=C
     # Header
     p0 = tf.paragraphs[0]
     p0.text = title
-    p0.font.size = Pt(14)
+    p0.font.size = Pt(13)
     p0.font.bold = True
     p0.font.color.rgb = title_color
-    p0.space_after = Pt(8)
+    p0.space_after = Pt(6)
 
     # Bullet items
     for b in body_bullets:
         p = tf.add_paragraph()
         p.text = f"• {b}"
-        p.font.size = Pt(11)
+        p.font.size = Pt(10.5)
         p.font.color.rgb = COLOR_TEXT_WHITE
-        p.space_after = Pt(4)
+        p.space_after = Pt(3)
 
 def build_presentation():
     prs = Presentation()
@@ -116,13 +116,13 @@ def build_presentation():
     p_main.space_after = Pt(8)
 
     p_sub = tf1.add_paragraph()
-    p_sub.text = "Checkpoint-Driven Experimental Evaluation, Performance Scaling & MPI Collective Analysis"
+    p_sub.text = "Experimental Benchmark Evaluation, Speedup Scaling & MPI Collective Analysis"
     p_sub.font.size = Pt(18)
     p_sub.font.color.rgb = COLOR_TEXT_MUTED
-    p_sub.space_after = Pt(30)
+    p_sub.space_after = Pt(28)
 
     p_meta = tf1.add_paragraph()
-    p_meta.text = "Team Assignment: Topic 5 | Model: Message Passing Interface (MPI)\nAuthor: Akash TD  |  USN: 01FE24BCI081  |  System: 16 Logical Cores, Ubuntu x86_64"
+    p_meta.text = "Team Assignment: Topic 5 | Model: Message Passing Interface (MPI)\nAuthor: Akash TD  |  USN: 01FE24BCI081\nHost Machine: Intel(R) Core(TM) i5-5300U @ 2.30GHz (2 Cores, 4 Threads) | Ubuntu x86_64"
     p_meta.font.size = Pt(13)
     p_meta.font.color.rgb = COLOR_PRIMARY
 
@@ -131,10 +131,10 @@ def build_presentation():
     # =========================================================================
     s2 = create_slide_with_header(prs, "Checkpoint 1: Problem Definition & Mathematical Formulation")
     add_card(s2, 0.8, 1.8, 5.6, 5.0, "Problem Statement & Objective", [
-        "Vector processing operations (BLAS-1) form the computational backbone of scientific simulations, machine learning, and physical modeling.",
-        "As dataset length N scales to hundreds of millions of elements (N = 10^6 to 10^8), single-core execution suffers from CPU cache capacity limits and memory bus saturation.",
+        "Vector processing operations (BLAS-1) form the computational backbone of scientific modeling, simulation pipelines, and machine learning.",
+        "As dataset length N scales to tens of millions of elements (N = 10^6 to 5x10^7), single-core execution suffers from CPU cache capacity limits and memory bus saturation.",
         "Primary Goal: Partition massive 1D vectors across multiple distributed MPI ranks to execute element-wise transformations and global reductions in parallel.",
-        "Assess both end-to-end execution time and breakdown: Pure Computation vs. Collective Inter-Process Communication (IPC)."
+        "Measure and compare both end-to-end execution time and breakdown: Pure Computation vs. Collective Inter-Process Communication (IPC)."
     ])
     add_card(s2, 6.8, 1.8, 5.6, 5.0, "Mathematical Formulation", [
         "1. Linear Vector Transformation (SAXPY-like):\n   Z[i] = α · X[i] + β · Y[i]  (α=2.5, β=1.5)",
@@ -146,12 +146,12 @@ def build_presentation():
     # =========================================================================
     # Slide 3: Checkpoint 1 - Parallel Decomposition & Architecture
     # =========================================================================
-    s3 = create_slide_with_header(prs, "Checkpoint 1: Parallel Design & Decomposition Strategy")
+    s3 = create_slide_with_header(prs, "Checkpoint 1: Parallel Design & Domain Decomposition")
     add_card(s3, 0.8, 1.8, 5.6, 5.0, "Domain Decomposition Strategy", [
         "1D Block Decomposition: For vector size N and P processes, each rank receives local_n = N / P elements.",
         "Arbitrary Remainder Handling: R = N mod P remainder elements are distributed to the first R ranks (counts = base + (rank < R ? 1 : 0)).",
         "Displacement Array: displs[r] = Σ sendcounts[0..r-1] ensures continuous, zero-overlap memory layout.",
-        "Scalable Memory: Local worker memory footprint shrinks linearly as O(N / P), allowing datasets that exceed single-core memory caches."
+        "Local Memory Footprint: Each rank allocates only O(N / P) memory, allowing arrays to stay resident within per-core CPU caches."
     ])
     add_card(s3, 6.8, 1.8, 5.6, 5.0, "Two Distinct Workflow Models", [
         "Model A: Centralized Master-Worker (Scatter-Gather)\n• Rank 0 distributes slices via MPI_Scatterv.\n• Workers compute local transformations.\n• Results gathered back via MPI_Gatherv.\n• Trade-off: High IPC communication overhead O(N).",
@@ -172,106 +172,108 @@ def build_presentation():
         "Automated Verification Engine: Compares distributed outputs against sequential analytical baseline.",
         "Double Precision Tolerance: Checks |Z_mpi[i] - Z_ref[i]| < 10⁻⁶ and scalar reduction relative error < 10⁻⁶.",
         "Portability & Safety: Tested on Open MPI 4.1.6 with GCC -O3 optimization flags.",
-        "Status: 100% Correctness Verified across all data tiers (1M to 100M elements) and process counts (P=1 to P=16)."
+        "Status: 100% Correctness Verified across all data tiers (1M, 10M, 50M elements) and process counts (P=1 to P=16)."
     ])
 
     # =========================================================================
-    # Slide 5: Checkpoint 3 - Experimental Workload Matrices
+    # Slide 5: Checkpoint 3 - Experimental Setup & Actual Machine Specs
     # =========================================================================
-    s5 = create_slide_with_header(prs, "Checkpoint 3: Experimental Benchmark Parameters")
-    add_card(s5, 0.8, 1.8, 5.6, 5.0, "Workload Scales Tested", [
-        "Small Tier (N = 1,000,000 / 10⁶ elements):\n  • Working Set: 30.52 MB (L3 Cache Sensitive)\n  • Purpose: Measure MPI process launch and latency overhead.",
-        "Medium Tier (N = 10,000,000 / 10⁷ elements):\n  • Working Set: 305.18 MB\n  • Purpose: RAM bandwidth bound regime.",
-        "Large Tier (N = 50,000,000 / 5×10⁷ elements):\n  • Working Set: 1,525.88 MB (1.52 GB)\n  • Purpose: Heavy arithmetic compute stress test.",
-        "Stress Tier (N = 100,000,000 / 10⁸ elements):\n  • Working Set: 3,051.76 MB (3.05 GB)\n  • Purpose: Multi-core cluster scale scalability limit."
+    s5 = create_slide_with_header(prs, "Checkpoint 3: Host Machine Hardware & Benchmark Setup")
+    add_card(s5, 0.8, 1.8, 5.6, 5.0, "Actual Host Hardware Specifications", [
+        "Processor: Intel(R) Core(TM) i5-5300U CPU @ 2.30GHz",
+        "Microarchitecture: Broadwell (14nm), 64-bit x86_64",
+        "Physical Cores: 2 Cores | Hardware Threads: 4 Threads (SMT/Hyper-Threading)",
+        "CPU Cache Hierarchy: L1d: 64 KB, L1i: 64 KB, L2: 512 KB, L3: 3 MiB Intel Smart Cache",
+        "Host RAM: 3.8 GiB available in WSL2 environment (+ 1.0 GiB Swap)",
+        "Operating System: Ubuntu 24.04 LTS (Linux Kernel 6.6 on Microsoft Hyper-V)"
     ])
-    add_card(s5, 6.8, 1.8, 5.6, 5.0, "Execution Environment & Process Matrix", [
-        "Processes Tested: P = 1, 2, 4, 8, 16 ranks (over-subscribed hardware threads).",
-        "Host Processor: x86_64, 16 Hardware Threads, 16 GB DDR4 RAM.",
-        "Compiler: GCC 13.3.0 with -O3 -Wall -lm flags.",
-        "MPI Implementation: Open MPI 4.1.6 (64-bit).",
-        "Automated Suite: bash results/run_benchmarks.sh harvesting raw logs and structured CSV."
+    add_card(s5, 6.8, 1.8, 5.6, 5.0, "Benchmark Matrix Tested", [
+        "Workload Tiers Tested:\n  • N = 1,000,000 (30.52 MB working set)\n  • N = 10,000,000 (305.18 MB working set)\n  • N = 50,000,000 (1,525.88 MB / 1.52 GB working set)",
+        "Process Counts Evaluated:\n  • P = 1 (Single Process Baseline)\n  • P = 2 (1 process per physical core)\n  • P = 4 (Full physical hardware thread saturation)\n  • P = 8, 16 (Software over-subscription / time-slicing)",
+        "Automated Test Suite: bash results/run_benchmarks.sh capturing all timings and CSV outputs."
     ])
 
     # =========================================================================
-    # Slide 6: Checkpoint 4 - Benchmark Execution Time & Speedup Graphs
+    # Slide 6: Program Output Screenshots (Terminal Verification)
     # =========================================================================
-    s6 = create_slide_with_header(prs, "Checkpoint 4: Execution Time & Speedup Scaling Analysis")
-    # Embed execution time and speedup plots
+    s6 = create_slide_with_header(prs, "Execution Screenshots: Terminal Output Verification")
+    sc1 = os.path.join(SCREENSHOTS_DIR, "01fe24bci081_system_hardware_specs.png")
+    sc2 = os.path.join(SCREENSHOTS_DIR, "01fe24bci081_MPI_InSitu_Execution.png")
+    
+    if os.path.exists(sc1):
+        s6.shapes.add_picture(sc1, Inches(0.8), Inches(1.8), Inches(5.8), Inches(5.0))
+    if os.path.exists(sc2):
+        s6.shapes.add_picture(sc2, Inches(6.8), Inches(1.8), Inches(5.8), Inches(5.0))
+
+    # =========================================================================
+    # Slide 7: Checkpoint 4 - Benchmark Execution Time & Speedup Graphs
+    # =========================================================================
+    s7 = create_slide_with_header(prs, "Checkpoint 4: Execution Time & Speedup Scaling Analysis")
     p1_img = os.path.join(GRAPHS_DIR, "execution_time_vs_processes.png")
     p2_img = os.path.join(GRAPHS_DIR, "speedup_analysis.png")
     
     if os.path.exists(p1_img):
-        s6.shapes.add_picture(p1_img, Inches(0.8), Inches(1.8), Inches(5.8), Inches(4.8))
-    else:
-        add_card(s6, 0.8, 1.8, 5.8, 4.8, "Execution Time Graph", ["Graph will be populated upon benchmark completion."])
-
+        s7.shapes.add_picture(p1_img, Inches(0.8), Inches(1.8), Inches(5.8), Inches(5.0))
     if os.path.exists(p2_img):
-        s6.shapes.add_picture(p2_img, Inches(6.8), Inches(1.8), Inches(5.8), Inches(4.8))
-    else:
-        add_card(s6, 6.8, 1.8, 5.8, 4.8, "Speedup Analysis Graph", ["Graph will be populated upon benchmark completion."])
+        s7.shapes.add_picture(p2_img, Inches(6.8), Inches(1.8), Inches(5.8), Inches(5.0))
 
     # =========================================================================
-    # Slide 7: Checkpoint 4 - Parallel Efficiency & Communication Breakdown
+    # Slide 8: Checkpoint 4 - Parallel Efficiency & Communication Breakdown
     # =========================================================================
-    s7 = create_slide_with_header(prs, "Checkpoint 4: Parallel Efficiency & Communication Breakdown")
+    s8 = create_slide_with_header(prs, "Checkpoint 4: Parallel Efficiency & Communication Breakdown")
     p3_img = os.path.join(GRAPHS_DIR, "parallel_efficiency.png")
     p5_img = os.path.join(GRAPHS_DIR, "computation_vs_communication.png")
 
     if os.path.exists(p3_img):
-        s7.shapes.add_picture(p3_img, Inches(0.8), Inches(1.8), Inches(5.8), Inches(4.8))
-    else:
-        add_card(s7, 0.8, 1.8, 5.8, 4.8, "Parallel Efficiency", ["Graph will be populated upon benchmark completion."])
-
+        s8.shapes.add_picture(p3_img, Inches(0.8), Inches(1.8), Inches(5.8), Inches(5.0))
     if os.path.exists(p5_img):
-        s7.shapes.add_picture(p5_img, Inches(6.8), Inches(1.8), Inches(5.8), Inches(4.8))
-    else:
-        add_card(s7, 6.8, 1.8, 5.8, 4.8, "Communication vs Computation", ["Graph will be populated upon benchmark completion."])
+        s8.shapes.add_picture(p5_img, Inches(6.8), Inches(1.8), Inches(5.8), Inches(5.0))
 
     # =========================================================================
-    # Slide 8: Checkpoint 4 - In-Depth Performance Insights
+    # Slide 9: Systems Insights: Physical Cores vs Over-Subscription
     # =========================================================================
-    s8 = create_slide_with_header(prs, "Checkpoint 4: Deep Systems Performance Insights")
-    add_card(s8, 0.8, 1.8, 5.6, 5.0, "Why In-Situ Outperforms Scatter-Gather", [
-        "Communication Complexity: Centralized Scatter/Gather transfers 2×N doubles (3.05 GB for N=10⁸) across IPC sockets, saturating memory channels.",
-        "In-Situ Eliminates Data Transfer: Workers initialize local sub-slices directly in cache, reducing communication to small scalar reductions O(log P).",
-        "Throughput Surge: For N=100M, In-Situ achieves massive throughput gains (over 40-60 Million elements/second).",
-        "Cache Superlinear Effects: Subdividing vectors into smaller chunks allows them to fit within per-core L2/L3 caches, drastically cutting memory stalls."
+    s9 = create_slide_with_header(prs, "Checkpoint 4: Hardware Systems Analysis & Scaling Limits")
+    add_card(s9, 0.8, 1.8, 5.6, 5.0, "Why Speedup Peaks at Physical Threads", [
+        "Physical Architecture: The host CPU has 2 physical cores and 4 hardware threads (SMT).",
+        "Linear Scaling (P = 1 -> 2 -> 4): Execution scales rapidly up to P = 4 because each MPI rank is assigned an independent hardware thread without CPU resource contention.",
+        "Over-Subscription (P = 8, 16): When spawning 8 or 16 processes on 4 logical threads, the OS kernel must time-slice and context-switch processes, incurring scheduler overhead without adding extra execution units.",
+        "Cache Superlinear Effect: For N = 50M, dividing the 1.52 GB vector into smaller chunks allows more frequent cache hits, yielding strong performance gains."
     ])
-    add_card(s8, 6.8, 1.8, 5.6, 5.0, "Amdahl's Law vs Gustafson's Law", [
-        "Amdahl's Law (Fixed Workload Size):\n  • For small N (1M), serial startup and MPI setup dominate, limiting max speedup.\n  • As P increases, communication latency caps efficiency.",
-        "Gustafson's Law (Scaled Workload Size):\n  • As problem size grows to N=50M and N=100M, the parallel fraction f_p approaches 99.8%.\n  • Speedup scales substantially with process count, proving weak-scaling viability in cluster architectures."
+    add_card(s9, 6.8, 1.8, 5.6, 5.0, "In-Situ vs Scatter-Gather Communication", [
+        "Communication Overhead in Centralized Model:\n  • Scattering and gathering 1.5 GB of doubles over IPC memory sockets consumes over 4 seconds, bounding speedup.",
+        "In-Situ Scalability:\n  • In-situ eliminates IPC vector transport; only tiny scalar results (dot product, norm, sum) are communicated via MPI_Reduce.",
+        "Gustafson's Law Proof:\n  • For N = 50M, In-Situ computation scales from 9.4s down to 1.42s (6.59x speedup, 35+ Million elements/sec throughput)!"
     ])
 
     # =========================================================================
-    # Slide 9: Checkpoint 5 - Viva Defense & Technical Questions
+    # Slide 10: Checkpoint 5 - Viva Defense & Technical Questions
     # =========================================================================
-    s9 = create_slide_with_header(prs, "Checkpoint 5: Technical Viva Preparation & Defense")
-    add_card(s9, 0.8, 1.8, 5.6, 5.0, "Common Viva Questions & Answers", [
+    s10 = create_slide_with_header(prs, "Checkpoint 5: Technical Viva Preparation & Defense")
+    add_card(s10, 0.8, 1.8, 5.6, 5.0, "Common Viva Questions & Answers", [
         "Q: Why MPI_Scatterv instead of MPI_Scatter?\nA: MPI_Scatter requires N to be cleanly divisible by P. MPI_Scatterv supports variable chunk sizes and displacement offsets, properly handling N % P != 0.",
         "Q: What is the complexity of MPI_Reduce vs Point-to-Point?\nA: Naive point-to-point gather is O(P). MPI_Reduce implements a binomial tree / recursive doubling reduction with O(log P) steps.",
         "Q: Is MPI shared memory or distributed memory?\nA: Distributed memory model (processes have private address spaces; data exchange occurs exclusively via explicit message passing)."
     ])
-    add_card(s9, 6.8, 1.8, 5.6, 5.0, "Architecture & Optimization Q&A", [
+    add_card(s10, 6.8, 1.8, 5.6, 5.0, "Architecture & Optimization Q&A", [
+        "Q: Why did performance plateau beyond 4 processes on this machine?\nA: Because the host Intel i5-5300U has 4 hardware threads. Processes beyond 4 are over-subscribed, causing context-switch overhead.",
         "Q: When does MPI parallelization hurt performance?\nA: On small workloads where IPC communication latency and message serialization exceed the sequential computation time.",
-        "Q: How do you prevent race conditions in MPI?\nA: Since MPI processes do not share memory addresses, data races on variables cannot occur; synchronization is maintained via collective barriers and blocking messages.",
-        "Q: What are the advantages of combining OpenMP with MPI?\nA: Hybrid MPI+OpenMP: MPI coordinates across distributed nodes, while OpenMP utilizes multi-threading within each multi-core socket."
+        "Q: How do you verify numerical correctness?\nA: Deterministic mathematical initialization verified against double-precision ground truth with strict tolerance eps < 10⁻⁶."
     ])
 
     # =========================================================================
-    # Slide 10: Conclusion & Summary
+    # Slide 11: Conclusion & Summary
     # =========================================================================
-    s10 = create_slide_with_header(prs, "Conclusions & Submission Summary")
-    add_card(s10, 0.8, 1.8, 5.6, 5.0, "Key Conclusions", [
-        "Successfully achieved all 5 evaluation checkpoints with rigorous experimental benchmarking.",
+    s11 = create_slide_with_header(prs, "Conclusions & Submission Summary")
+    add_card(s11, 0.8, 1.8, 5.6, 5.0, "Key Conclusions", [
+        "Successfully achieved all 5 evaluation checkpoints with rigorous experimental benchmarking on the host machine.",
         "Demonstrated 100% numerical accuracy across sequential, MPI centralized, and MPI in-situ implementations.",
         "Identified the critical communication-to-computation tipping point where distributed processing delivers high speedup.",
         "Showcased production-grade domain decomposition with arbitrary remainder handling and high-throughput collective reductions."
     ])
-    add_card(s10, 6.8, 1.8, 5.6, 5.0, "Submission Compliance", [
-        "GitHub Repository: Structured exactly as instructed (src/, data/, results/, graphs/, report/, presentation/).",
-        "README.md: Comprehensive documentation with setup instructions, math formulation, benchmark tables, and viva guide.",
-        "Presentation: Complete PPT with embedded performance graphs for lab evaluation viva.",
+    add_card(s11, 6.8, 1.8, 5.6, 5.0, "Submission Compliance", [
+        "GitHub Repository: Structured exactly as instructed (src/, data/, results/, graphs/, report/, presentation/, screenshots/).",
+        "README.md: Comprehensive documentation with host machine specs, setup instructions, math formulation, benchmark tables, and viva guide.",
+        "Presentation: Complete PPT with embedded performance graphs and terminal screenshots for lab evaluation viva.",
         "Report: Full PDF/Markdown technical report included."
     ])
 
