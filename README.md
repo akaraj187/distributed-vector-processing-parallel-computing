@@ -22,22 +22,7 @@ This repository presents the design, implementation, and empirical performance e
 
 ---
 
-## 1. Evaluation Checkpoints Tracker (10 / 10 Marks)
-
-All 5 evaluation checkpoints stipulated in the laboratory evaluation guidelines have been completed:
-
-| Checkpoint | Evaluation Requirement | Weightage | Status | Implementation Details |
-| :---: | :--- | :---: | :---: | :--- |
-| **Checkpoint 1** | **Problem definition + sequential algorithm + parallel design** | 2 Marks | **COMPLETED** | Mathematical formulation of BLAS-1 SAXPY, non-linear trigonometric/radical mapping, and collective reductions (dot product, L2 norm, global sum/extrema). 1D block domain decomposition with arbitrary remainder handling ($N \pmod P \neq 0$). |
-| **Checkpoint 2** | **Working parallel implementation using assigned model** | 2 Marks | **COMPLETED** | Engineered C implementations using Open MPI collective communications (`MPI_Scatterv`, `MPI_Gatherv`, `MPI_Reduce`, `MPI_Barrier`) with automated numerical verification against analytical references. |
-| **Checkpoint 3** | **Run with different data sizes / threads / processes and collect results** | 2 Marks | **COMPLETED** | Evaluated 3 distinct workload tiers ($N = 10^6, 10^7, 5 \times 10^7$ elements) across process scales $P \in \{1, 2, 4, 8, 16\}$; raw metrics logged in `results/timing_results.csv` and `results/benchmark_log.txt`. |
-| **Checkpoint 4** | **Generate graphs and analyze execution time, speedup and efficiency** | 2 Marks | **COMPLETED** | Automated Matplotlib visualization suite generating 5 publication-grade figures (execution time scaling, speedup curves, parallel efficiency, and communication vs. computation breakdown). |
-| **Checkpoint 5** | **Final demonstration + technical viva** | 2 Marks | **COMPLETED** | Comprehensive 11-slide PowerPoint presentation (`presentation/Distributed_Vector_Processing_Lab_Evaluation.pptx`), viva defense guide, and verified terminal execution captures. |
-| **TOTAL** | **Lab Evaluation Score** | **10 / 10** | **VERIFIED** | **All 5 Checkpoints fully addressed.** |
-
----
-
-## 2. Problem Definition & Mathematical Formulation
+## 1. Problem Definition & Mathematical Formulation
 
 ### 2.1 Problem Scope
 Vector processing operations form the computational core of linear algebra (BLAS Level 1), physical modeling, and deep learning backpropagation. When dataset length $N$ scales into tens of millions of elements, single-core processing suffers from memory bus saturation and CPU cache capacity misses. Distributing the dataset across multiple independent processes enables concurrent execution and maintains data resident within per-core cache hierarchies.
@@ -61,7 +46,7 @@ $$X[i] = \sin\left((i \pmod{1000}) \times 0.01\right) + 1.5, \quad Y[i] = \cos\l
 
 ---
 
-## 3. Arithmetic Intensity & Memory Hierarchy Dynamics
+## 2. Arithmetic Intensity & Memory Hierarchy Dynamics
 
 A primary design consideration in high-performance computing is the distinction between **Memory-Bound** and **Compute-Bound** workloads (characterized by the **Roofline Model**):
 
@@ -81,9 +66,9 @@ To evaluate parallel multi-core performance, the non-linear pipeline $W[i] = \sq
 
 ---
 
-## 4. Parallel Design & Domain Decomposition
+## 3. Parallel Design & Domain Decomposition
 
-### 4.1 1D Block Domain Decomposition with Remainder Handling
+### 3.1 1D Block Domain Decomposition with Remainder Handling
 For a vector of length $N$ partitioned across $P$ execution ranks:
 * **Base partition size:** $n_{\text{base}} = \lfloor N / P \rfloor$
 * **Remainder distribution:** $R = N \pmod P$
@@ -99,13 +84,13 @@ Global Vector N:
 +-------------------+-------------------+-------------------+-------------------+
 ```
 
-### 4.2 Distributed Architectural Execution Models
+### 3.2 Distributed Architectural Execution Models
 1. **Centralized Master-Worker (Scatter-Gather):** Root process (Rank 0) distributes data slices using `MPI_Scatterv` and collects computed sub-arrays via `MPI_Gatherv`. Transferring full arrays across IPC introduces an $O(N)$ communication overhead.
 2. **In-Situ Domain-Decomposed (Scalable Cluster Architecture):** Each process initializes and processes its designated slice in-place within its local virtual address space. Communication is restricted to logarithmic collective reductions (`MPI_Reduce`, $O(\log P)$ steps), reflecting modern distributed data frameworks (e.g., MPI-IO, Apache Spark).
 
 ---
 
-## 5. Repository Structure
+## 4. Repository Structure
 
 ```
 distributed-vector-processing-parallel-computing/
@@ -147,7 +132,7 @@ distributed-vector-processing-parallel-computing/
 
 ---
 
-## 6. Build and Execution Instructions
+## 5. Build and Execution Instructions
 
 ### 6.1 Prerequisites
 * GCC Compiler (`gcc`) supporting `-O3` and C99/C11 standards
@@ -185,7 +170,7 @@ make presentation
 
 ---
 
-## 7. Empirical Results & Performance Analysis
+## 6. Empirical Results & Performance Analysis
 
 Below are the empirical benchmarks measured live on the host **Intel Core i5-5300U** system across $N = 10^6, 10^7, 5 \times 10^7$ double-precision elements:
 
@@ -210,57 +195,57 @@ Below are the empirical benchmarks measured live on the host **Intel Core i5-530
 
 ---
 
-## 8. Graphical Scaling Analysis
+## 7. Graphical Scaling Analysis
 
-### 8.1 Execution Time vs. Process Count
+### 7.1 Execution Time vs. Process Count
 ![Execution Time vs Processes](graphs/execution_time_vs_processes.png)
 *Figure 1: Wall-clock execution time vs. process count across workload sizes ($N = 1M$ to $50M$). In-Situ partitioning shows consistent latency reduction with scaling processes.*
 
-### 8.2 Speedup Analysis (Strong Scaling)
+### 7.2 Speedup Analysis (Strong Scaling)
 ![Speedup Analysis](graphs/speedup_analysis.png)
 *Figure 2: Empirical Speedup $S(P) = T_{\text{seq}} / T_P$ compared against Ideal Linear Speedup ($S = P$). As vector size scales to 50M, speedup approaches near-linear curves due to higher compute-to-communication ratios.*
 
-### 8.3 Parallel Efficiency Analysis
+### 7.3 Parallel Efficiency Analysis
 ![Parallel Efficiency](graphs/parallel_efficiency.png)
 *Figure 3: Parallel Efficiency $E(P) = S(P) / P \times 100\%$. Illustrates strong scaling characteristics and superlinear efficiency gains arising from aggregate CPU cache residency.*
 
-### 8.4 Data Size Scaling (Log-Log)
+### 7.4 Data Size Scaling (Log-Log)
 ![Data Size Scaling](graphs/datasize_scaling.png)
 *Figure 4: Log-Log execution time scaling from 1M to 50M elements comparing Sequential baseline against MPI ranks 2, 4, 8, and 16.*
 
-### 8.5 Computation vs. Communication Breakdown
+### 7.5 Computation vs. Communication Breakdown
 ![Communication vs Computation](graphs/computation_vs_communication.png)
 *Figure 5: Phase-by-phase breakdown of pure computation time vs. collective IPC overhead (`MPI_Scatterv`, `MPI_Gatherv`, and `MPI_Reduce`) in the centralized model.*
 
 ---
 
-## 9. Live Program Output Verification
+## 8. Live Program Output Verification
 
 The following terminal captures document the live program runs on the host machine (`DESKTOP-FUGQNF4`) under student roll number `01FE24BCI081`:
 
-### 9.1 Host Hardware & Operating System Specifications (`lscpu`, `free -h`)
+### 8.1 Host Hardware & Operating System Specifications (`lscpu`, `free -h`)
 ![Host Hardware Specs](screenshots/01fe24bci081_system_hardware_specs.png)
 *Figure 6: Host architecture confirmation showing Intel Core i5-5300U CPU (2 cores, 4 threads, 3 MiB L3 cache), 3.8 GiB RAM in WSL2, and Open MPI 4.1.6.*
 
-### 9.2 Sequential Baseline Execution ($N = 10,000,000$)
+### 8.2 Sequential Baseline Execution ($N = 10,000,000$)
 ![Sequential Execution](screenshots/01fe24bci081_Sequential_Execution.png)
 *Figure 7: Terminal output of sequential baseline execution processing 10 Million elements in 0.370887 seconds (Throughput: 26.96 Million elements/sec).*
 
-### 9.3 Open MPI In-Situ Distributed Execution ($N = 10,000,000$, 4 Processes)
+### 8.3 Open MPI In-Situ Distributed Execution ($N = 10,000,000$, 4 Processes)
 ![MPI In-Situ Execution](screenshots/01fe24bci081_MPI_InSitu_Execution.png)
 *Figure 8: Terminal output of Open MPI In-Situ domain decomposition running on 4 processes (0.224077s, Throughput: 44.63 M-elem/s, Speedup: 1.66x, 100% Correctness).*
 
-### 9.4 Open MPI Centralized Scatter-Gather Execution ($N = 10,000,000$, 4 Processes)
+### 8.4 Open MPI Centralized Scatter-Gather Execution ($N = 10,000,000$, 4 Processes)
 ![MPI Scatter-Gather Execution](screenshots/01fe24bci081_MPI_ScatterGather_Execution.png)
 *Figure 9: Terminal output of Open MPI Scatter-Gather showing computation time (0.216s) vs. collective IPC communication time (0.396s).*
 
-### 9.5 Multi-Core Hardware Thread Saturation (`htop`)
+### 8.5 Multi-Core Hardware Thread Saturation (`htop`)
 ![Multicore htop](screenshots/01fe24bci081_MPI_Multicore_htop.png)
 *Figure 10: Multi-core saturation across all 4 logical hardware threads running 4 parallel MPI ranks at ~100% CPU capacity.*
 
 ---
 
-## 10. Hardware & Operating Environment
+## 9. Hardware & Operating Environment
 
 - **Host Processor:** Intel(R) Core(TM) i5-5300U CPU @ 2.30GHz
 - **Microarchitecture:** Broadwell (14nm), 64-bit x86_64
@@ -280,7 +265,7 @@ The following terminal captures document the live program runs on the host machi
 
 ---
 
-## 11. Technical Defense Summary
+## 10. Technical Defense Summary
 
 * **Domain Decomposition:** Contiguous 1D block partitioning with dynamic remainder offsets handles arbitrary vector lengths without element truncation.
 * **Collective Complexity:** Reductions execute via binomial tree collectives in $O(\log_2 P)$ steps rather than serialized $O(P)$ point-to-point exchanges.
