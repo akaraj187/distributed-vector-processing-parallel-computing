@@ -83,3 +83,7 @@
 ### Q12: Why is `MPI_Barrier(MPI_COMM_WORLD)` placed before `MPI_Wtime()` starts?
 - Different MPI processes may launch and reach the starting point at slightly different times due to OS scheduling and process spawn latencies.
 - Placing `MPI_Barrier` immediately before the start timer ensures all processes are aligned and synchronized before timing starts, preventing distorted benchmarks.
+
+### Q13: If all 4 threads are fetching from RAM, won't fetching make the RAM busy and create a bottleneck?
+- **In light computation (simple addition $X + Y$):** Yes! The math takes only 1 cycle, so all 4 threads finish instantly and simultaneously demand data from RAM, saturating the memory bus. The cores sit stalled waiting for RAM, yielding almost 0× speedup (Memory-Bound).
+- **In heavy computation (our code $\sqrt{X^2+Y^2} + \sin X + \cos Y$):** No! The CPU loads a 64-byte block (8 numbers) in a 20-nanosecond burst, and then spends ~300 nanoseconds crunching heavy math. Because computing takes 15× longer than fetching, requests to RAM are staggered and infrequent. The memory bus remains clear, and the CPU hardware prefetcher silently pre-loads the next numbers into local L1 cache in the background (latency hiding). All 4 cores compute simultaneously over 98% of the time, resulting in our 6.59× speedup.
