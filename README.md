@@ -28,7 +28,9 @@ This repository contains the complete experimental suite, source code, benchmark
 
 ## 2. Problem Definition & Mathematical Formulation
 
-In high-performance numerical computing (BLAS-1 routines, physical simulations, and deep learning pipelines), processing large 1D vectors ($N = 10^6$ to $10^8$ double-precision elements) on a single CPU core is bounded by memory bus throughput and cache evictions. By dividing vectors across distributed processes, each processing node operates on a smaller, cache-resident slice of memory while computing concurrently.
+In high-performance numerical computing (BLAS-1 routines, physical simulations, and deep learning pipelines), processing large 1D vectors ($N = 10^6$ to $5 \times 10^7$ double-precision elements) on a single CPU core is bounded by memory bus throughput and cache evictions. By dividing vectors across distributed processes, each processing node operates on a smaller, cache-resident slice of memory while computing concurrently.
+
+> **Deep Dive Guide:** For an in-depth explanation of arithmetic intensity, why heavy math is used over simple addition, and real-world AI/physics applications, see [`docs/MATHEMATICAL_CONCEPTS_AND_SYSTEMS_GUIDE.md`](docs/MATHEMATICAL_CONCEPTS_AND_SYSTEMS_GUIDE.md).
 
 ### 2.1 Mathematical Operations
 
