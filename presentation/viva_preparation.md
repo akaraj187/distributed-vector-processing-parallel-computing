@@ -72,7 +72,7 @@
 ## 4. Code & Practical Implementation Defense
 
 ### Q10: How did you ensure 100% numerical correctness?
-- Used a deterministic synthetic function $X[i] = \sin((i \pmod{1000}) \times 0.01) + 1.5$ and $Y[i] = \cos((i \pmod{1000}) \times 0.01) + 2.0$.
+- Used a deterministic mathematical formula $X[i] = \sin((i \pmod{1000}) \times 0.01) + 1.5$ and $Y[i] = \cos((i \pmod{1000}) \times 0.01) + 2.0$.
 - Compared the distributed results on Rank 0 against sequential reference computations with a strict floating-point tolerance of $\epsilon = 10^{-6}$.
 - Verified both element-wise array integrity ($Z[i], W[i]$) and global reductions (Dot product, L2 norm, Z sum).
 

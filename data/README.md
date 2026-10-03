@@ -1,10 +1,10 @@
 # Vector Datasets Specification and Generation
 
-This directory documents the synthetic and analytical dataset models used for the Distributed Vector Processing evaluation.
+This directory documents the raw numerical dataset specifications and mathematical models used for the Distributed Vector Processing evaluation.
 
 ## 1. Dataset Generation Model
 
-To benchmark massive workloads ($10^6$ up to $10^8$ double-precision elements) without relying on gigabytes of static disk I/O bottlenecks, input vectors $X$ and $Y$ are generated using a deterministic trigonometric series:
+To benchmark massive workloads ($10^6$ up to $5 \times 10^7$ double-precision elements) without relying on gigabytes of static disk I/O bottlenecks, input vectors $X$ and $Y$ are generated using a deterministic trigonometric series:
 
 $$X[i] = \sin\left((i \pmod{1000}) \times 0.01\right) + 1.5$$
 $$Y[i] = \cos\left((i \pmod{1000}) \times 0.01\right) + 2.0$$

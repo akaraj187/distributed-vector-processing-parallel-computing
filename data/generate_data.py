@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Synthetic Dataset Generator and Analytical Reference for Distributed Vector Processing
+Raw Numerical Dataset Generator and Analytical Reference for Distributed Vector Processing
 Parallel and GPU Computing Laboratory - Team 5
 """
 
@@ -45,7 +45,7 @@ def generate_analytical_reference(N, alpha=2.5, beta=1.5):
     print("=================================================================")
 
 def main():
-    parser = argparse.ArgumentParser(description="Synthetic Vector Dataset Tool")
+    parser = argparse.ArgumentParser(description="Raw Vector Dataset Tool")
     parser.add_argument("--size", "-n", type=int, default=10000000, help="Vector size N")
     parser.add_argument("--alpha", type=float, default=2.5, help="Scalar alpha")
     parser.add_argument("--beta", type=float, default=1.5, help="Scalar beta")
